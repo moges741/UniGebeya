@@ -71,7 +71,7 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'AAiT Software Engineering, 4th Year',
     isFeatured: true,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
   {
     id: 'demo-sony-a7iii-rental',
@@ -95,7 +95,7 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'Selam Campus Media Studio',
     isFeatured: true,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
   {
     id: 'demo-brand-ui-design',
@@ -119,7 +119,7 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'EiABC Architecture & Design',
     isFeatured: true,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
   {
     id: 'demo-engineering-textbook-bundle',
@@ -143,7 +143,7 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'Computer Science Graduate',
     isFeatured: false,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
   {
     id: 'demo-portable-hd-projector',
@@ -167,7 +167,7 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'Local Partner Business — Arat Kilo',
     isFeatured: false,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
   {
     id: 'demo-wanted-graphics-tablet',
@@ -191,6 +191,6 @@ export const SHOWCASE_DEMO_LISTINGS: Omit<Listing, 'createdAt' | 'updatedAt'>[] 
     sellerOrg: 'EiABC 3rd Year Student',
     isFeatured: false,
     isDemo: true,
-    approvedBy: 'onnee741@gmail.com',
+    approvedBy: 'mogesse741@gmail.com',
   },
 ];
