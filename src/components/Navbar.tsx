@@ -49,7 +49,7 @@ export function Navbar() {
           {/* Zone 2: Navigation Links */}
           <nav
             aria-label="Main navigation"
-            className="hidden md:flex items-center gap-6 lg:gap-7"
+            className="hidden xl:flex items-center gap-5 xl:gap-6 2xl:gap-7"
           >
             <NavLink to="/" end className={navLinkClass}>
               Home
@@ -93,10 +93,10 @@ export function Navbar() {
             )}
           </nav>
 
-          {/* Zone 3: Telegram Pill + Primary Action */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
+          {/* Zone 3: Telegram Pill + Primary Action + Mobile/Tablet Drawer Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {isAdmin && (
-              <span className="hidden xl:inline-flex items-center gap-1 px-2.5 py-1 bg-[#036A39]/10 text-[#036A39] border border-[#036A39]/20 rounded-full text-xs font-bold">
+              <span className="hidden 2xl:inline-flex items-center gap-1 px-2.5 py-1 bg-[#036A39]/10 text-[#036A39] border border-[#036A39]/20 rounded-full text-xs font-bold">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#C0A14E]" />
                 Admin Mode
               </span>
@@ -106,7 +106,7 @@ export function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               title="Join Uni Gebeya on Telegram"
-              className="px-3 py-1.5 bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+              className="hidden sm:inline-flex px-3 py-1.5 bg-[#229ED9]/10 text-[#229ED9] hover:bg-[#229ED9]/20 text-xs font-bold rounded-lg transition-colors items-center gap-1.5"
             >
               <Send className="w-3.5 h-3.5" />
               <span>@uni_gebeya</span>
@@ -115,26 +115,26 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => navigate(primaryActionPath)}
-              className="px-4 py-2 text-xs font-bold text-[#F2F2F2] bg-[#036A39] rounded-xl hover:bg-[#024D29] transition-all whitespace-nowrap shrink-0 shadow-sm hover:shadow"
+              className="px-3.5 sm:px-4 py-2 text-xs font-bold text-[#F2F2F2] bg-[#036A39] rounded-xl hover:bg-[#024D29] transition-all whitespace-nowrap shrink-0 shadow-sm hover:shadow"
             >
               {primaryActionLabel}
             </button>
-          </div>
 
-          {/* Mobile Drawer Toggle */}
-          <button
-            type="button"
-            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
-            onClick={() => setMobileOpen((prev) => !prev)}
-            className="md:hidden p-2 text-[#036A39] hover:bg-[#036A39]/8 rounded-lg transition-colors"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            {/* Mobile / Tablet Drawer Toggle Button */}
+            <button
+              type="button"
+              aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={() => setMobileOpen((prev) => !prev)}
+              className="xl:hidden p-2 text-[#036A39] hover:bg-[#036A39]/8 rounded-lg transition-colors"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation Panel */}
+        {/* Mobile & Tablet Navigation Panel */}
         {mobileOpen && (
-          <div className="md:hidden bg-[#F2F2F2] border-t border-[#036A39]/12 px-4 py-4 space-y-2">
+          <div className="xl:hidden bg-[#F2F2F2] border-t border-[#036A39]/12 px-4 py-4 space-y-2 max-h-[calc(100vh-4rem)] overflow-y-auto shadow-lg">
             <NavLink
               to="/"
               end

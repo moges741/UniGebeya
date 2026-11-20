@@ -27,7 +27,7 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <BrowserRouter>
-            <div className="min-h-screen flex flex-col bg-[#DEE0DF] text-[#036A39]">
+            <div className="min-h-screen flex flex-col bg-[#DEE0DF] text-[#036A39] overflow-x-hidden">
               <Navbar />
               <main className="flex-1">
                 <Routes>

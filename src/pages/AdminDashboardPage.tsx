@@ -381,7 +381,7 @@ export function AdminDashboardPage() {
       )}
 
       {/* 5-Column Overview KPI Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
         <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-xl p-5">
           <p className="text-xs font-medium text-[#023B1F]/70">Total Users</p>
           <p className="font-[JetBrains_Mono] text-2xl font-bold text-[#036A39] mt-1 tabular-nums">

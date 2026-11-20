@@ -282,9 +282,9 @@ export function MarketplacePage() {
 
       {/* Filter & Search Bar Panel */}
       <section className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Search Input */}
-          <div className="lg:col-span-5 relative">
+          <div className="md:col-span-12 lg:col-span-5 relative">
             <Search className="w-4 h-4 text-[#036A39]/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="search"
@@ -300,7 +300,7 @@ export function MarketplacePage() {
           </div>
 
           {/* Min / Max Price */}
-          <div className="lg:col-span-4 grid grid-cols-2 gap-2.5">
+          <div className="md:col-span-7 lg:col-span-4 grid grid-cols-2 gap-2.5">
             <input
               type="number"
               min={0}
@@ -328,7 +328,7 @@ export function MarketplacePage() {
           </div>
 
           {/* Sort Dropdown */}
-          <div className="lg:col-span-3 flex items-center gap-2">
+          <div className="md:col-span-5 lg:col-span-3 flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-[#036A39]/70 shrink-0" />
             <select
               value={sortBy}
