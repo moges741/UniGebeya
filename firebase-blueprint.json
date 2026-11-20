@@ -1,0 +1,255 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Registered university student or local business member profile.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Authentication user UID."
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "Display name of the student or business owner."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160,
+          "description": "Verified account email address."
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 40,
+          "description": "Optional Ethiopian or international phone number."
+        },
+        "organization": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "University department, campus, or local business name."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["USER", "ADMIN"],
+          "description": "Authorization role. Defaults to USER; only admins may change."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when user profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of latest update."
+        }
+      },
+      "required": ["uid", "fullName", "email", "phone", "organization", "role", "createdAt", "updatedAt"]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted administrator membership registry document keyed by user UID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 160
+        },
+        "grantedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "grantedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Marketplace category taxonomy managed by administrators.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "slug": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80,
+          "pattern": "^[a-z0-9\\-]+$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "sortOrder": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["name", "slug", "description", "sortOrder", "createdAt", "updatedAt"]
+    },
+    "Listing": {
+      "title": "Listing",
+      "description": "Marketplace listing subject to admin approval before public publication.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 2500
+        },
+        "price": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "enum": ["ETB", "USD"]
+        },
+        "listingType": {
+          "type": "string",
+          "enum": ["FOR_SALE", "WANTED", "RENTAL", "SERVICE", "EXCHANGE"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PENDING", "APPROVED", "REJECTED"]
+        },
+        "rejectionReason": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "location": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "contactPhone": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "contactTelegram": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "contactEmail": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "categoryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "categoryName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "images": {
+          "type": "array"
+        },
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sellerName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "sellerOrg": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "isFeatured": {
+          "type": "boolean"
+        },
+        "isDemo": {
+          "type": "boolean"
+        },
+        "approvedBy": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "price",
+        "currency",
+        "listingType",
+        "status",
+        "rejectionReason",
+        "location",
+        "contactPhone",
+        "contactTelegram",
+        "contactEmail",
+        "categoryId",
+        "categoryName",
+        "images",
+        "userId",
+        "sellerName",
+        "sellerOrg",
+        "isFeatured",
+        "isDemo",
+        "approvedBy",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user account profiles with PII isolated to owner and admin."
+    },
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/AdminRecord" },
+      "description": "Trusted administrator lookup documents."
+    },
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Publicly readable marketplace categories managed exclusively by admins."
+    },
+    "/listings/{listingId}": {
+      "schema": { "$ref": "#/entities/Listing" },
+      "description": "Marketplace listings where only APPROVED listings are publicly readable and only admins can approve or reject."
+    }
+  }
+}

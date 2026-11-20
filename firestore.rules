@@ -1,0 +1,295 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Core Helpers (Order: Auth -> Static Validation -> Relational Lookups)
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedUser() && request.auth.token.email == 'onnee741@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isVerifiedUser() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------------------
+    // Validation Blueprints (Anti-Update-Gap)
+    // -------------------------------------------------------------------------
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+          'uid', 'fullName', 'email', 'phone', 'organization', 'role', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid', 'fullName', 'email', 'phone', 'organization', 'role', 'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 100
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.phone is string && data.phone.size() <= 40
+        && data.organization is string && data.organization.size() <= 120
+        && data.role in ['USER', 'ADMIN']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminRecord(data) {
+      return data.keys().hasAll(['uid', 'email', 'grantedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'grantedAt'])
+        && isValidId(data.uid)
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 160
+        && data.grantedAt is timestamp;
+    }
+
+    function isValidCategory(data) {
+      return data.keys().hasAll(['name', 'slug', 'description', 'sortOrder', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'slug', 'description', 'sortOrder', 'createdAt', 'updatedAt'])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 80
+        && data.slug is string && data.slug.size() >= 2 && data.slug.size() <= 80 && data.slug.matches('^[a-z0-9\\-]+$')
+        && data.description is string && data.description.size() <= 300
+        && data.sortOrder is number && data.sortOrder >= 0 && data.sortOrder <= 1000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidImageList(imgs) {
+      return imgs is list
+        && imgs.size() >= 1
+        && imgs.size() <= 3
+        && imgs[0] is string && imgs[0].size() >= 5 && imgs[0].size() <= 180000
+        && (imgs.size() < 2 || (imgs[1] is string && imgs[1].size() >= 5 && imgs[1].size() <= 180000))
+        && (imgs.size() < 3 || (imgs[2] is string && imgs[2].size() >= 5 && imgs[2].size() <= 180000));
+    }
+
+    function isValidListing(data) {
+      return data.keys().hasAll([
+          'title', 'description', 'price', 'currency', 'listingType', 'status',
+          'rejectionReason', 'location', 'contactPhone', 'contactTelegram',
+          'contactEmail', 'categoryId', 'categoryName', 'images', 'userId',
+          'sellerName', 'sellerOrg', 'isFeatured', 'isDemo', 'approvedBy',
+          'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'title', 'description', 'price', 'currency', 'listingType', 'status',
+          'rejectionReason', 'location', 'contactPhone', 'contactTelegram',
+          'contactEmail', 'categoryId', 'categoryName', 'images', 'userId',
+          'sellerName', 'sellerOrg', 'isFeatured', 'isDemo', 'approvedBy',
+          'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 3 && data.title.size() <= 120
+        && data.description is string && data.description.size() >= 10 && data.description.size() <= 2500
+        && data.price is number && data.price >= 0 && data.price <= 100000000
+        && data.currency in ['ETB', 'USD']
+        && data.listingType in ['FOR_SALE', 'WANTED', 'RENTAL', 'SERVICE', 'EXCHANGE']
+        && data.status in ['PENDING', 'APPROVED', 'REJECTED']
+        && data.rejectionReason is string && data.rejectionReason.size() <= 500
+        && data.location is string && data.location.size() >= 2 && data.location.size() <= 120
+        && data.contactPhone is string && data.contactPhone.size() <= 40
+        && data.contactTelegram is string && data.contactTelegram.size() <= 64
+        && data.contactEmail is string && data.contactEmail.size() <= 160
+        && isValidId(data.categoryId)
+        && data.categoryName is string && data.categoryName.size() >= 2 && data.categoryName.size() <= 80
+        && isValidImageList(data.images)
+        && isValidId(data.userId)
+        && data.sellerName is string && data.sellerName.size() >= 2 && data.sellerName.size() <= 100
+        && data.sellerOrg is string && data.sellerOrg.size() <= 120
+        && data.isFeatured is bool
+        && data.isDemo is bool
+        && data.approvedBy is string && data.approvedBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: /users/{userId} (PII Isolated to Owner & Admin)
+    // -------------------------------------------------------------------------
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isBootstrappedAdmin();
+
+      allow create: if isVerifiedUser()
+        && isValidId(userId)
+        && request.auth.uid == userId
+        && isValidUserProfile(incoming())
+        && incoming().uid == request.auth.uid
+        && incoming().email == request.auth.token.email
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (incoming().role == 'USER' || isAdmin());
+
+      allow update: if isVerifiedUser()
+        && isValidId(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().email == existing().email
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action 1: Owner edits own non-privileged profile details
+          (
+            isOwner(userId)
+            && incoming().role == existing().role
+            && incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'phone', 'organization', 'updatedAt'])
+          ) ||
+          // Action 2: Admin updates user profile or role
+          (
+            isAdmin()
+            && incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'phone', 'organization', 'role', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isValidId(userId) && isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: /admins/{userId}
+    // -------------------------------------------------------------------------
+    match /admins/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isBootstrappedAdmin();
+      allow create: if isValidId(userId)
+        && isAdmin()
+        && isValidAdminRecord(incoming())
+        && incoming().uid == userId
+        && incoming().grantedAt == request.time;
+      allow update: if isValidId(userId)
+        && isAdmin()
+        && isValidAdminRecord(incoming())
+        && incoming().uid == existing().uid
+        && incoming().grantedAt == existing().grantedAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['email']);
+      allow delete: if isValidId(userId) && isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: /categories/{categoryId}
+    // -------------------------------------------------------------------------
+    match /categories/{categoryId} {
+      allow get: if isValidId(categoryId);
+      allow list: if true;
+
+      allow create: if isValidId(categoryId)
+        && isAdmin()
+        && isValidCategory(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isValidId(categoryId)
+        && isAdmin()
+        && isValidCategory(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'slug', 'description', 'sortOrder', 'updatedAt']);
+
+      allow delete: if isValidId(categoryId) && isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // Collection: /listings/{listingId} (Core Approval Gate)
+    // -------------------------------------------------------------------------
+    match /listings/{listingId} {
+      // Only APPROVED listings are visible publicly; owners see their own; admins see all
+      allow get: if isValidId(listingId) && (
+        existing().status == 'APPROVED' ||
+        isOwner(existing().userId) ||
+        isAdmin()
+      );
+
+      // Secure list query: no get()/exists() inside list; forces client query constraints
+      allow list: if resource.data.status == 'APPROVED'
+        || (isSignedIn() && resource.data.userId == request.auth.uid)
+        || isBootstrappedAdmin();
+
+      // Users submit as PENDING only; admins may seed/create directly
+      allow create: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && exists(/databases/$(database)/documents/categories/$(incoming().categoryId))
+        && (
+          (
+            incoming().status == 'PENDING'
+            && incoming().isFeatured == false
+            && incoming().isDemo == false
+            && incoming().approvedBy == ''
+            && incoming().rejectionReason == ''
+          ) || isAdmin()
+        );
+
+      // Action-based update with mandatory validation wrapper
+      allow update: if isVerifiedUser()
+        && isValidId(listingId)
+        && isValidListing(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action 1: Owner edits listing (always returns to PENDING for admin re-review)
+          (
+            isOwner(existing().userId)
+            && incoming().status == 'PENDING'
+            && incoming().isFeatured == existing().isFeatured
+            && incoming().isDemo == existing().isDemo
+            && incoming().approvedBy == ''
+            && incoming().rejectionReason == ''
+            && exists(/databases/$(database)/documents/categories/$(incoming().categoryId))
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'title', 'description', 'price', 'currency', 'listingType',
+              'location', 'contactPhone', 'contactTelegram', 'contactEmail',
+              'categoryId', 'categoryName', 'images', 'sellerName', 'sellerOrg',
+              'status', 'rejectionReason', 'approvedBy', 'updatedAt'
+            ])
+          ) ||
+          // Action 2: Admin approves, rejects, features, or edits listing
+          (
+            isAdmin()
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'title', 'description', 'price', 'currency', 'listingType',
+              'location', 'contactPhone', 'contactTelegram', 'contactEmail',
+              'categoryId', 'categoryName', 'images', 'sellerName', 'sellerOrg',
+              'status', 'rejectionReason', 'isFeatured', 'approvedBy', 'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isVerifiedUser()
+        && isValidId(listingId)
+        && (isOwner(existing().userId) || isAdmin());
+    }
+  }
+}
