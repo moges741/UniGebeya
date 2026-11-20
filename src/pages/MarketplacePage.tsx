@@ -1,8 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  MapPin,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { ListingCard } from '../components/ListingCard';
+import { QuickViewModal } from '../components/QuickViewModal';
 import { DEFAULT_CATEGORIES, SHOWCASE_DEMO_LISTINGS } from '../data/seedData';
 import { fetchApprovedListings, fetchCategories } from '../services/marketplaceService';
 import {
@@ -14,6 +23,15 @@ import {
 
 const ITEMS_PER_PAGE = 6;
 
+const CAMPUS_PRESETS = [
+  { label: 'All Campuses', value: '' },
+  { label: 'AAiT (5 Kilo)', value: '5 Kilo' },
+  { label: 'Main (6 Kilo)', value: '6 Kilo' },
+  { label: 'Science (4 Kilo)', value: '4 Kilo' },
+  { label: 'EiABC (Lideta)', value: 'EiABC' },
+  { label: 'Black Lion', value: 'Black Lion' },
+];
+
 export function MarketplacePage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -24,10 +42,34 @@ export function MarketplacePage() {
   const [queryText, setQueryText] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedType, setSelectedType] = useState<ListingType | 'ALL'>(initialType);
+  const [selectedCampus, setSelectedCampus] = useState<string>('');
+  const [onlyBookmarked, setOnlyBookmarked] = useState(false);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'price_asc' | 'price_desc'>('newest');
   const [page, setPage] = useState(1);
+  const [quickViewListing, setQuickViewListing] = useState<Listing | null>(null);
+
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('unigebeya_bookmarks');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('unigebeya_bookmarks', JSON.stringify(bookmarkedIds));
+    } catch {}
+  }, [bookmarkedIds]);
+
+  const toggleBookmark = (id: string) => {
+    setBookmarkedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   const { data: liveCategories = [] } = useQuery({
     queryKey: ['categories'],
@@ -63,10 +105,16 @@ export function MarketplacePage() {
     const max = maxPrice.trim() !== '' ? Number(maxPrice) : null;
 
     const list = sourceListings.filter((item) => {
+      if (onlyBookmarked && !bookmarkedIds.includes(item.id)) {
+        return false;
+      }
       if (selectedCategory !== 'ALL' && item.categoryId !== selectedCategory) {
         return false;
       }
       if (selectedType !== 'ALL' && item.listingType !== selectedType) {
+        return false;
+      }
+      if (selectedCampus && !item.location.toLowerCase().includes(selectedCampus.toLowerCase())) {
         return false;
       }
       if (min !== null && !Number.isNaN(min) && item.price < min) {
@@ -98,7 +146,18 @@ export function MarketplacePage() {
       return [...list].sort((a, b) => b.price - a.price);
     }
     return list;
-  }, [sourceListings, queryText, selectedCategory, selectedType, minPrice, maxPrice, sortBy]);
+  }, [
+    sourceListings,
+    queryText,
+    selectedCategory,
+    selectedType,
+    selectedCampus,
+    onlyBookmarked,
+    bookmarkedIds,
+    minPrice,
+    maxPrice,
+    sortBy,
+  ]);
 
   const totalPages = Math.max(1, Math.ceil(filteredListings.length / ITEMS_PER_PAGE));
   const safePage = Math.min(page, totalPages);
@@ -111,6 +170,8 @@ export function MarketplacePage() {
     queryText.trim() !== '' ||
     selectedCategory !== 'ALL' ||
     selectedType !== 'ALL' ||
+    selectedCampus !== '' ||
+    onlyBookmarked ||
     minPrice !== '' ||
     maxPrice !== '';
 
@@ -118,6 +179,8 @@ export function MarketplacePage() {
     setQueryText('');
     setSelectedCategory('ALL');
     setSelectedType('ALL');
+    setSelectedCampus('');
+    setOnlyBookmarked(false);
     setMinPrice('');
     setMaxPrice('');
     setSortBy('newest');
@@ -131,19 +194,19 @@ export function MarketplacePage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#036A39]/15 pb-6">
         <div className="space-y-1.5">
           <h1 className="text-3xl sm:text-4xl font-bold text-[#036A39] tracking-tight">
-            Marketplace
+            Marketplace Catalog
           </h1>
           <p className="text-sm text-[#023B1F]/75">
-            Browse verified, administrator-approved products, rentals, and campus services.
+            Browse verified, administrator-approved products, equipment rentals, and campus skills.
           </p>
         </div>
         <div className="flex items-center gap-4 text-sm">
-          <span className="font-[JetBrains_Mono] text-xs font-medium text-[#023B1F]/75 tabular-nums">
+          <span className="font-[JetBrains_Mono] text-xs font-semibold text-[#023B1F]/75 tabular-nums">
             {filteredListings.length} {filteredListings.length === 1 ? 'listing' : 'listings'}
           </span>
           <Link
             to="/submit"
-            className="px-4 py-2 bg-[#036A39] text-[#F2F2F2] text-xs font-semibold rounded-lg hover:bg-[#024D29] transition-colors whitespace-nowrap shrink-0"
+            className="px-4 py-2 bg-[#036A39] text-[#F2F2F2] text-xs font-bold rounded-lg hover:bg-[#024D29] transition-colors whitespace-nowrap shrink-0 shadow-sm"
           >
             Submit Listing
           </Link>
@@ -151,7 +214,7 @@ export function MarketplacePage() {
       </div>
 
       {/* Filter & Search Bar Panel */}
-      <section className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-2xl p-5 sm:p-6 space-y-5">
+      <section className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Search Input */}
           <div className="lg:col-span-5 relative">
@@ -165,7 +228,7 @@ export function MarketplacePage() {
               }}
               placeholder="Search title, campus location, or skill..."
               aria-label="Search marketplace"
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-lg text-[#023B1F] placeholder:text-[#023B1F]/50 focus:bg-[#F2F2F2] focus:border-[#036A39]/40 focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-xl text-[#023B1F] placeholder:text-[#023B1F]/50 focus:bg-[#F2F2F2] focus:border-[#036A39]/40 focus:outline-none"
             />
           </div>
 
@@ -181,7 +244,7 @@ export function MarketplacePage() {
               }}
               placeholder="Min price (ETB)"
               aria-label="Minimum price"
-              className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-lg text-[#023B1F] placeholder:text-[#023B1F]/50 tabular-nums focus:bg-[#F2F2F2] focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-xl text-[#023B1F] placeholder:text-[#023B1F]/50 tabular-nums focus:bg-[#F2F2F2] focus:outline-none"
             />
             <input
               type="number"
@@ -193,7 +256,7 @@ export function MarketplacePage() {
               }}
               placeholder="Max price (ETB)"
               aria-label="Maximum price"
-              className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-lg text-[#023B1F] placeholder:text-[#023B1F]/50 tabular-nums focus:bg-[#F2F2F2] focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-xl text-[#023B1F] placeholder:text-[#023B1F]/50 tabular-nums focus:bg-[#F2F2F2] focus:outline-none"
             />
           </div>
 
@@ -204,13 +267,55 @@ export function MarketplacePage() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'price_asc' | 'price_desc')}
               aria-label="Sort listings"
-              className="w-full px-3 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-lg text-[#023B1F] focus:bg-[#F2F2F2] focus:outline-none"
+              className="w-full px-3 py-2.5 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-xl text-[#023B1F] focus:bg-[#F2F2F2] focus:outline-none font-medium"
             >
               <option value="newest">Newest Published</option>
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
             </select>
           </div>
+        </div>
+
+        {/* Campus Location Quick Presets */}
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#036A39]/10">
+          <span className="text-xs font-semibold text-[#023B1F]/70 flex items-center gap-1 mr-1">
+            <MapPin className="w-3.5 h-3.5 text-[#C0A14E]" />
+            <span>Campus:</span>
+          </span>
+          {CAMPUS_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              onClick={() => {
+                setSelectedCampus(preset.value);
+                setPage(1);
+              }}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                selectedCampus === preset.value
+                  ? 'bg-[#036A39] text-[#F2F2F2] shadow-sm'
+                  : 'bg-[#DEE0DF]/60 text-[#023B1F] hover:bg-[#DEE0DF]'
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+
+          {/* Bookmarks Filter */}
+          <button
+            type="button"
+            onClick={() => {
+              setOnlyBookmarked((prev) => !prev);
+              setPage(1);
+            }}
+            className={`ml-auto px-3 py-1 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-all ${
+              onlyBookmarked
+                ? 'bg-rose-600 text-white shadow-sm'
+                : 'bg-[#DEE0DF]/60 text-[#023B1F] hover:bg-[#DEE0DF]'
+            }`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${onlyBookmarked ? 'fill-current' : ''}`} />
+            <span>Saved ({bookmarkedIds.length})</span>
+          </button>
         </div>
 
         {/* Listing Type Filter Controls */}
@@ -293,7 +398,7 @@ export function MarketplacePage() {
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#036A39] hover:text-[#024D29] whitespace-nowrap shrink-0"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Reset filters
+              <span>Reset filters</span>
             </button>
           )}
         </div>
@@ -305,7 +410,7 @@ export function MarketplacePage() {
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <div
               key={n}
-              className="bg-[#F2F2F2] border border-[#036A39]/10 rounded-xl overflow-hidden animate-pulse"
+              className="bg-[#F2F2F2] border border-[#036A39]/10 rounded-2xl overflow-hidden animate-pulse"
             >
               <div className="aspect-[4/3] bg-[#DEE0DF]" />
               <div className="p-5 space-y-3">
@@ -317,25 +422,25 @@ export function MarketplacePage() {
           ))}
         </div>
       ) : paginatedListings.length === 0 ? (
-        <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-2xl p-12 text-center space-y-4">
-          <h2 className="text-xl font-semibold text-[#036A39]">No matching listings found</h2>
+        <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-3xl p-12 text-center space-y-4 shadow-sm">
+          <h2 className="text-xl font-bold text-[#036A39]">No matching listings found</h2>
           <p className="text-sm text-[#023B1F]/75 max-w-md mx-auto">
-            Try adjusting your search keywords, price range, or category filters—or post a Wanted
-            listing so sellers on campus can reach you.
+            Try adjusting your search keywords, price range, or category filters—or post a listing so
+            buyers and sellers on campus can reach you.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
               type="button"
               onClick={resetFilters}
-              className="px-4 py-2 text-sm font-medium border border-[#036A39]/30 text-[#036A39] rounded-lg hover:bg-[#036A39]/8 transition-colors"
+              className="px-5 py-2.5 text-xs font-bold border border-[#036A39]/30 text-[#036A39] rounded-xl hover:bg-[#036A39]/8 transition-colors"
             >
               Clear All Filters
             </button>
             <Link
               to="/submit"
-              className="px-4 py-2 text-sm font-semibold bg-[#036A39] text-[#F2F2F2] rounded-lg hover:bg-[#024D29] transition-colors"
+              className="px-5 py-2.5 text-xs font-bold bg-[#036A39] text-[#F2F2F2] rounded-xl hover:bg-[#024D29] transition-colors"
             >
-              Post a Wanted Listing
+              Post a Listing
             </Link>
           </div>
         </div>
@@ -343,7 +448,13 @@ export function MarketplacePage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedListings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                onQuickView={setQuickViewListing}
+                isBookmarked={bookmarkedIds.includes(listing.id)}
+                onToggleBookmark={toggleBookmark}
+              />
             ))}
           </div>
 
@@ -377,6 +488,15 @@ export function MarketplacePage() {
           )}
         </>
       )}
+
+      {/* Interactive Quick View Modal */}
+      <QuickViewModal
+        listing={quickViewListing}
+        isOpen={Boolean(quickViewListing)}
+        onClose={() => setQuickViewListing(null)}
+        isBookmarked={Boolean(quickViewListing && bookmarkedIds.includes(quickViewListing.id))}
+        onToggleBookmark={toggleBookmark}
+      />
     </div>
   );
 }
