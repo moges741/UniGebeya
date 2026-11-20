@@ -452,7 +452,7 @@ export function SubmitListingPage() {
               </label>
               <input
                 type="text"
-                placeholder="e.g., 5 Kilo AAiT Gate, 6 Kilo, Bole, Adama"
+                placeholder="e.g., JiT Kito Furdisa Gate, JU Main Campus Library, Kochi"
                 {...register('location')}
                 className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/40 border border-[#036A39]/20 rounded-lg text-[#023B1F] focus:bg-[#F2F2F2] focus:outline-none"
               />

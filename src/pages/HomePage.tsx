@@ -31,11 +31,11 @@ import { Category, Listing } from '../types/marketplace';
 
 const CAMPUS_HUBS = [
   { name: 'All Campuses', query: '' },
-  { name: 'AAiT (5 Kilo)', query: '5 Kilo' },
-  { name: 'Main (6 Kilo)', query: '6 Kilo' },
-  { name: 'Science (4 Kilo)', query: '4 Kilo' },
-  { name: 'EiABC (Lideta)', query: 'EiABC' },
-  { name: 'Black Lion', query: 'Black Lion' },
+  { name: 'JiT (Kito Furdisa)', query: 'JiT' },
+  { name: 'JU Main Campus', query: 'Main' },
+  { name: 'JUMC (Health)', query: 'Health' },
+  { name: 'JUCAVM (Agri)', query: 'Agri' },
+  { name: 'Jimma Town (Kochi)', query: 'Jimma' },
 ];
 
 export function HomePage() {
@@ -416,7 +416,7 @@ export function HomePage() {
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-[#F2F2F2] tracking-tight">
-                Empowering students and local businesses in Addis Ababa.
+                Empowering students and local businesses across Jimma University.
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">

@@ -278,7 +278,7 @@ export function ListingDetailPage() {
             <div className="text-xs text-[#023B1F]/85 leading-relaxed">
               <span className="font-bold text-[#036A39]">Verified Campus Marketplace:</span> Every
               listing on UNi GEBEYA is reviewed by student moderators. We never charge middleman fees.
-              Always meet in designated campus areas (such as AAiT Library Square or Main Gate) to
+              Always meet in designated campus areas (such as JiT Kito Furdisa Innovation Gate, JU Main Library Square, or Student Lounge) to
               inspect gear before paying.
             </div>
           </div>

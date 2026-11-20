@@ -25,11 +25,11 @@ const ITEMS_PER_PAGE = 6;
 
 const CAMPUS_PRESETS = [
   { label: 'All Campuses', value: '' },
-  { label: 'AAiT (5 Kilo)', value: '5 Kilo' },
-  { label: 'Main (6 Kilo)', value: '6 Kilo' },
-  { label: 'Science (4 Kilo)', value: '4 Kilo' },
-  { label: 'EiABC (Lideta)', value: 'EiABC' },
-  { label: 'Black Lion', value: 'Black Lion' },
+  { label: 'JiT (Kito Furdisa)', value: 'JiT' },
+  { label: 'JU Main Campus', value: 'Main' },
+  { label: 'JUMC (Health)', value: 'Health' },
+  { label: 'JUCAVM (Agri)', value: 'Agri' },
+  { label: 'Jimma Town (Kochi)', value: 'Jimma' },
 ];
 
 export function MarketplacePage() {

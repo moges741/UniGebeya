@@ -29,7 +29,7 @@ export function BusinessPartnerShowcase() {
     businessName: '',
     contactPerson: '',
     phone: '',
-    campusVicinity: 'AAiT (5 Kilo)',
+    campusVicinity: 'JiT (Kito Furdisa)',
     category: 'Electronics & Repairs',
     note: '',
   });
@@ -46,7 +46,7 @@ export function BusinessPartnerShowcase() {
       businessName: '',
       contactPerson: '',
       phone: '',
-      campusVicinity: 'AAiT (5 Kilo)',
+      campusVicinity: 'JiT (Kito Furdisa)',
       category: 'Electronics & Repairs',
       note: '',
     });
@@ -63,17 +63,17 @@ export function BusinessPartnerShowcase() {
           <div className="lg:col-span-7 space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#C0A14E]/20 text-[#C0A14E] rounded-full text-xs font-bold uppercase tracking-wider">
               <Handshake className="w-3.5 h-3.5" />
-              <span>Campus Business Partnership Program</span>
+              <span>JU Business Partnership Program</span>
             </div>
 
             <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-[#F2F2F2] leading-tight">
-              Grow your business with direct access to 25,000+ university students.
+              Grow your business with direct access to 40,000+ Jimma University students and staff.
             </h2>
 
             <p className="text-sm sm:text-base text-[#F2F2F2]/85 leading-relaxed max-w-2xl">
-              From laptop repair shops and photo studios to campus printing hubs and cafes—UNi GEBEYA
-              gives local merchants verified trust badges, catalog showcase placement, and instant
-              broadcast across our high-engagement campus Telegram community.
+              From laptop repair hubs and photo studios to student print centers, cafes, and equipment
+              suppliers around Jimma—UNi GEBEYA gives local merchants verified badges, catalog showcase
+              placement, and instant broadcast across our dedicated campus Telegram community.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-4">
@@ -111,11 +111,11 @@ export function BusinessPartnerShowcase() {
 
             <div className="bg-[#024D29]/70 backdrop-blur-sm border border-[#C0A14E]/20 p-5 rounded-2xl space-y-1">
               <p className="text-2xl sm:text-3xl font-extrabold text-[#C0A14E] font-[JetBrains_Mono]">
-                6+
+                JU Hubs
               </p>
-              <p className="text-xs font-semibold text-[#F2F2F2]">Addis Campuses</p>
+              <p className="text-xs font-semibold text-[#F2F2F2]">Campuses Connected</p>
               <p className="text-[11px] text-[#F2F2F2]/70 leading-snug">
-                AAiT, 6 Kilo, 4 Kilo, Lideta, FBE, Tikur Anbessa.
+                JiT Kito Furdisa, Main Campus, JUMC Health, JUCAVM Agri.
               </p>
             </div>
 
@@ -125,7 +125,7 @@ export function BusinessPartnerShowcase() {
               </p>
               <p className="text-xs font-semibold text-[#F2F2F2]">Telegram Bot Sync</p>
               <p className="text-[11px] text-[#F2F2F2]/70 leading-snug">
-                Instant notification to active buyer networks.
+                Instant broadcast to active student buyer networks.
               </p>
             </div>
 
@@ -135,7 +135,7 @@ export function BusinessPartnerShowcase() {
               </p>
               <p className="text-xs font-semibold text-[#F2F2F2]">Commission On Sales</p>
               <p className="text-[11px] text-[#F2F2F2]/70 leading-snug">
-                Direct transactions between buyers and sellers.
+                Direct peer-to-peer and merchant trades in Jimma.
               </p>
             </div>
           </div>
@@ -149,15 +149,15 @@ export function BusinessPartnerShowcase() {
             <div className="w-10 h-10 rounded-xl bg-[#036A39]/10 text-[#036A39] flex items-center justify-center">
               <Store className="w-5 h-5 text-[#036A39]" />
             </div>
-            <h3 className="text-base font-bold text-[#036A39]">Campus Print &amp; Thesis Hub</h3>
+            <h3 className="text-base font-bold text-[#036A39]">JiT Print &amp; Thesis Binding Hub</h3>
             <p className="text-xs text-[#023B1F]/75 leading-relaxed">
-              Fast, high-volume thesis binding, poster printing, and project drafting for engineering
-              and architecture students with student discount pricing.
+              Fast, high-volume thesis binding, poster printing, and project drafting for engineering,
+              architecture, and computing students with student discount rates in Kito Furdisa.
             </p>
           </div>
           <div className="pt-3 border-t border-[#036A39]/10 flex items-center justify-between text-xs">
             <span className="font-semibold text-[#036A39]">Verified Partner</span>
-            <span className="text-[#9D7F32] font-medium">5 Kilo AAiT</span>
+            <span className="text-[#9D7F32] font-medium">JiT (Kito Furdisa)</span>
           </div>
         </div>
 
@@ -166,15 +166,15 @@ export function BusinessPartnerShowcase() {
             <div className="w-10 h-10 rounded-xl bg-[#036A39]/10 text-[#036A39] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-[#C0A14E]" />
             </div>
-            <h3 className="text-base font-bold text-[#036A39]">Tech Fix &amp; Laptop Diagnostics</h3>
+            <h3 className="text-base font-bold text-[#036A39]">Jimma Tech Fix &amp; Laptop Diagnostics</h3>
             <p className="text-xs text-[#023B1F]/75 leading-relaxed">
               Same-day SSD upgrades, screen replacements, thermal paste service, and OS setup
-              specifically tailored for university student hardware needs.
+              specifically tailored for university student coding and engineering workstations.
             </p>
           </div>
           <div className="pt-3 border-t border-[#036A39]/10 flex items-center justify-between text-xs">
             <span className="font-semibold text-[#036A39]">Verified Partner</span>
-            <span className="text-[#9D7F32] font-medium">4 Kilo Science</span>
+            <span className="text-[#9D7F32] font-medium">Jimma Town (Kochi)</span>
           </div>
         </div>
 
@@ -185,13 +185,13 @@ export function BusinessPartnerShowcase() {
             </div>
             <h3 className="text-base font-bold text-[#036A39]">Media, Camera &amp; Studio Rentals</h3>
             <p className="text-xs text-[#023B1F]/75 leading-relaxed">
-              Daily and weekend equipment rentals (Sony, Canon, audio mics, lighting, projectors)
-              for graduation ceremonies, student clubs, and creative projects.
+              Daily and weekend camera kit rentals (Sony, Canon, audio mics, lighting, projectors)
+              for graduation ceremonies, campus club events, and creative projects.
             </p>
           </div>
           <div className="pt-3 border-t border-[#036A39]/10 flex items-center justify-between text-xs">
             <span className="font-semibold text-[#036A39]">Verified Partner</span>
-            <span className="text-[#9D7F32] font-medium">6 Kilo Main</span>
+            <span className="text-[#9D7F32] font-medium">JU Main Campus</span>
           </div>
         </div>
       </div>
@@ -219,10 +219,10 @@ export function BusinessPartnerShowcase() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-[#036A39]">
                     <BadgeCheck className="w-5 h-5 text-[#C0A14E]" />
-                    <h3 className="text-xl font-bold">Partner with UNi GEBEYA</h3>
+                    <h3 className="text-xl font-bold">Partner with UNi GEBEYA @ JU</h3>
                   </div>
                   <p className="text-xs text-[#023B1F]/75">
-                    Connect your shop, studio, or service with students across university campuses.
+                    Connect your shop, studio, or service with students across Jimma University campuses.
                   </p>
                 </div>
 
@@ -236,7 +236,7 @@ export function BusinessPartnerShowcase() {
                       required
                       value={form.businessName}
                       onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                      placeholder="e.g. Arat Kilo Print & Copy Express"
+                      placeholder="e.g. Kito Furdisa Tech & Print Hub"
                       className="w-full px-3.5 py-2.5 bg-white rounded-lg border border-[#036A39]/20 text-sm focus:border-[#036A39] focus:outline-none"
                     />
                   </div>
@@ -274,20 +274,20 @@ export function BusinessPartnerShowcase() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold text-[#036A39] mb-1">
-                        Campus Vicinity
+                        Campus Vicinity in Jimma
                       </label>
                       <select
                         value={form.campusVicinity}
                         onChange={(e) => setForm({ ...form, campusVicinity: e.target.value })}
                         className="w-full px-3.5 py-2.5 bg-white rounded-lg border border-[#036A39]/20 text-sm focus:border-[#036A39] focus:outline-none"
                       >
-                        <option value="AAiT (5 Kilo)">AAiT (5 Kilo)</option>
-                        <option value="Main Campus (6 Kilo)">Main Campus (6 Kilo)</option>
-                        <option value="Science (4 Kilo)">Science (4 Kilo)</option>
-                        <option value="EiABC (Lideta)">EiABC (Lideta)</option>
-                        <option value="Black Lion (Tikur Anbessa)">Black Lion (Tikur Anbessa)</option>
-                        <option value="FBE (Business & Economics)">FBE (Business & Economics)</option>
-                        <option value="All Campuses">Multiple Campuses</option>
+                        <option value="JiT (Kito Furdisa)">JiT (Kito Furdisa)</option>
+                        <option value="JU Main Campus">JU Main Campus</option>
+                        <option value="JUMC (Health Campus)">JUMC (Health Campus)</option>
+                        <option value="JUCAVM (Agri / Eladale)">JUCAVM (Agri / Eladale)</option>
+                        <option value="College of Business & Economics">College of Business &amp; Economics</option>
+                        <option value="Jimma Town (Kochi / Merkato)">Jimma Town (Kochi / Merkato)</option>
+                        <option value="All JU Campuses">All JU Campuses</option>
                       </select>
                     </div>
 
@@ -300,11 +300,11 @@ export function BusinessPartnerShowcase() {
                         onChange={(e) => setForm({ ...form, category: e.target.value })}
                         className="w-full px-3.5 py-2.5 bg-white rounded-lg border border-[#036A39]/20 text-sm focus:border-[#036A39] focus:outline-none"
                       >
-                        <option value="Electronics & Repairs">Electronics & Repairs</option>
-                        <option value="Printing & Stationery">Printing & Stationery</option>
-                        <option value="Equipment & Camera Rentals">Equipment & Camera Rentals</option>
-                        <option value="Books & Academic Supplies">Books & Academic Supplies</option>
-                        <option value="Cafe & Food Delivery">Cafe & Food Delivery</option>
+                        <option value="Electronics & Repairs">Electronics &amp; Repairs</option>
+                        <option value="Printing & Stationery">Printing &amp; Stationery</option>
+                        <option value="Equipment & Camera Rentals">Equipment &amp; Camera Rentals</option>
+                        <option value="Books & Academic Supplies">Books &amp; Academic Supplies</option>
+                        <option value="Cafe & Food Delivery">Cafe &amp; Food Delivery</option>
                         <option value="Student Housing / Hostel">Student Housing / Hostel</option>
                         <option value="Other Campus Service">Other Campus Service</option>
                       </select>
@@ -319,7 +319,7 @@ export function BusinessPartnerShowcase() {
                       rows={2}
                       value={form.note}
                       onChange={(e) => setForm({ ...form, note: e.target.value })}
-                      placeholder="e.g. 15% discount for verified university students on print jobs"
+                      placeholder="e.g. 15% discount for Jimma University students on thesis printing or laptop servicing"
                       className="w-full px-3.5 py-2 bg-white rounded-lg border border-[#036A39]/20 text-sm focus:border-[#036A39] focus:outline-none"
                     />
                   </div>
@@ -351,7 +351,7 @@ export function BusinessPartnerShowcase() {
                     Partnership Request Received!
                   </h3>
                   <p className="text-xs text-[#023B1F]/75 max-w-sm mx-auto">
-                    Thank you, <strong>{form.contactPerson}</strong>. Our campus business team will
+                    Thank you, <strong>{form.contactPerson}</strong>. Our Jimma University partner team will
                     contact you at <strong>{form.phone}</strong> to review your business verification.
                   </p>
                 </div>

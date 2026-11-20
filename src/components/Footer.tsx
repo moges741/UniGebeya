@@ -24,7 +24,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-[#F2F2F2]/80 leading-relaxed max-w-md">
-              Connecting university students and local businesses across Addis Ababa to buy, sell,
+              Connecting university students and local businesses across Jimma to buy, sell,
               rent equipment, and discover trusted campus services. Every listing is reviewed by
               human moderators before publishing.
             </p>
@@ -128,7 +128,7 @@ export function Footer() {
 
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#F2F2F2]/70">
           <p>© {new Date().getFullYear()} UNi GEBEYA (ዩኒ ገበያ). Empowering university commerce.</p>
-          <p>Addis Ababa, Ethiopia · Direct student &amp; local merchant exchange.</p>
+          <p>Jimma, Ethiopia · Direct student &amp; local merchant exchange.</p>
         </div>
       </div>
     </footer>

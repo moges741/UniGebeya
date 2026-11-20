@@ -232,7 +232,7 @@ export function AuthPage() {
               </label>
               <input
                 type="text"
-                placeholder="e.g., AAiT 5 Kilo Software Engineering / Arat Kilo Print Hub"
+                placeholder="e.g., JiT Kito Furdisa Software Engineering / Jimma Print Hub"
                 {...register('organization')}
                 className="w-full px-3.5 py-2.5 text-sm bg-[#DEE0DF]/40 border border-[#036A39]/20 rounded-lg text-[#023B1F] focus:bg-[#F2F2F2] focus:outline-none"
               />

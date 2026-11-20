@@ -16,7 +16,7 @@ const ACTIVITIES: ActivityItem[] = [
     badge: 'APPROVED',
     badgeColor: 'bg-emerald-100 text-emerald-800',
     text: 'MacBook Air M2 (16GB RAM)',
-    campus: 'AAiT (5 Kilo)',
+    campus: 'JiT (Kito Furdisa)',
     timeAgo: 'Just now',
   },
   {
@@ -24,15 +24,15 @@ const ACTIVITIES: ActivityItem[] = [
     badge: 'RENTAL BOOKED',
     badgeColor: 'bg-amber-100 text-amber-800',
     text: 'Sony A7 III Camera Kit for Graduation',
-    campus: 'Main Campus (6 Kilo)',
+    campus: 'JU Main Campus',
     timeAgo: '4m ago',
   },
   {
     id: '3',
     badge: 'VERIFIED MERCHANT',
     badgeColor: 'bg-blue-100 text-blue-800',
-    text: 'Arat Kilo Campus Print & Copy Hub joined',
-    campus: '4 Kilo Science',
+    text: 'Jimma Campus Print & Copy Hub joined',
+    campus: 'JiT Tech Hub',
     timeAgo: '12m ago',
   },
   {
@@ -40,7 +40,7 @@ const ACTIVITIES: ActivityItem[] = [
     badge: 'NEW LISTING',
     badgeColor: 'bg-purple-100 text-purple-800',
     text: 'Calculus & Engineering Textbook Pack',
-    campus: 'AAiT Library',
+    campus: 'JiT Library Gate',
     timeAgo: '18m ago',
   },
   {
@@ -48,8 +48,16 @@ const ACTIVITIES: ActivityItem[] = [
     badge: 'SERVICE OFFER',
     badgeColor: 'bg-indigo-100 text-indigo-800',
     text: 'Startup Pitch Deck & Figma UI Design',
-    campus: 'EiABC Campus',
+    campus: 'JU Main / B&E',
     timeAgo: '26m ago',
+  },
+  {
+    id: '6',
+    badge: 'HEALTH & LAB',
+    badgeColor: 'bg-teal-100 text-teal-800',
+    text: 'Medical Stethoscope & Lab Coat Bundle',
+    campus: 'JUMC Health Campus',
+    timeAgo: '35m ago',
   },
 ];
 
@@ -76,7 +84,7 @@ export function LiveActivityTicker() {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#036A39]"></span>
             </span>
             <span className="font-bold text-[#036A39] tracking-wider uppercase text-[11px] flex items-center gap-1">
-              Live Activity
+              Live JU Activity
             </span>
           </div>
 
@@ -108,11 +116,11 @@ export function LiveActivityTicker() {
           </div>
           <div className="flex items-center gap-1">
             <Users className="w-3.5 h-3.5 text-[#036A39]" />
-            <span>6 Campuses Connected</span>
+            <span>JU Campuses Connected</span>
           </div>
           <div className="flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5 text-[#036A39]" />
-            <span>Zero Broker Fees</span>
+            <span>Direct Campus Exchange</span>
           </div>
         </div>
       </div>
