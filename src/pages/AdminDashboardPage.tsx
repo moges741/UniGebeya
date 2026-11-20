@@ -18,14 +18,21 @@ import {
   Star,
   Trash2,
   Users,
+  UserCheck,
+  UserMinus,
+  UserX,
+  Shield,
+  ShieldCheck,
   XCircle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
   adminApproveListing,
+  adminDeleteUser,
   adminEditListing,
   adminRejectListing,
   adminToggleFeatured,
+  adminToggleUserRole,
   clearDemoListingsAdmin,
   createCategory,
   deleteCategory,
@@ -68,6 +75,9 @@ export function AdminDashboardPage() {
   const [editLocation, setEditLocation] = useState('');
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState<'ALL' | 'ADMIN' | 'USER'>('ALL');
+  const [confirmDeleteUserId, setConfirmDeleteUserId] = useState<string | null>(null);
   const [actionBanner, setActionBanner] = useState<string | null>(null);
 
   const { data: allListings = [], isLoading: listingsLoading } = useQuery({
@@ -176,6 +186,34 @@ export function AdminDashboardPage() {
     onSuccess: async (count) => {
       await refreshAll();
       notify(`Removed ${count} demo listings. Real user submissions remain untouched.`);
+    },
+  });
+
+  const toggleUserRoleMutation = useMutation({
+    mutationFn: ({ uid, role, email }: { uid: string; role: 'ADMIN' | 'USER'; email?: string }) =>
+      adminToggleUserRole(uid, role, email),
+    onSuccess: async (_, variables) => {
+      await refreshAll();
+      notify(
+        variables.role === 'ADMIN'
+          ? `User promoted to Administrator successfully.`
+          : `User demoted to standard User.`
+      );
+    },
+    onError: (err: any) => {
+      notify(`Failed to update user role: ${err.message || 'Permission denied'}`);
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: (uid: string) => adminDeleteUser(uid),
+    onSuccess: async () => {
+      setConfirmDeleteUserId(null);
+      await refreshAll();
+      notify('User account and administrative records deleted.');
+    },
+    onError: (err: any) => {
+      notify(`Failed to delete user: ${err.message || 'Error occurred'}`);
     },
   });
 
@@ -998,88 +1036,277 @@ export function AdminDashboardPage() {
       )}
 
       {/* ================================================================= */}
-      {/* TAB 3: USERS DIRECTORY                                            */}
+      {/* TAB 3: USERS DIRECTORY & ROLE MANAGEMENT                          */}
       {/* ================================================================= */}
       {activeTab === 'users' && (
-        <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-2xl overflow-hidden">
-          {usersLoading ? (
-            <div className="p-8 text-center text-sm text-[#023B1F]/70">Loading users...</div>
-          ) : allUsers.length === 0 ? (
-            <div className="p-8 text-center text-sm text-[#023B1F]/70">No registered users yet.</div>
-          ) : (
-            <div className="divide-y divide-[#036A39]/10">
-              {allUsers.map((u) => {
-                const userPosts = allListings.filter((l) => l.userId === u.uid);
-                const isExpanded = expandedUserId === u.uid;
-                return (
-                  <div key={u.uid} className="p-5 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-[#023B1F]">
-                            {u.fullName}
-                          </span>
-                          <span className="text-xs font-medium text-[#9D7F32]">· {u.role}</span>
-                        </div>
-                        <p className="text-xs text-[#023B1F]/70">
-                          {u.email}
-                          {u.phone ? ` · ${u.phone}` : ''}
-                          {u.organization ? ` · ${u.organization}` : ''}
-                        </p>
-                      </div>
+        <div className="space-y-4">
+          {/* Search & Filter Bar */}
+          <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-[#036A39]/60 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="search"
+                value={userSearchTerm}
+                onChange={(e) => setUserSearchTerm(e.target.value)}
+                placeholder="Search user by name, email, or phone..."
+                className="w-full pl-10 pr-4 py-2 text-sm bg-[#DEE0DF]/45 border border-[#036A39]/15 rounded-xl text-[#023B1F] placeholder:text-[#023B1F]/50 focus:bg-[#F2F2F2] focus:outline-none"
+              />
+            </div>
 
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="font-[JetBrains_Mono] text-[#036A39] font-semibold tabular-nums">
-                          {userPosts.length} {userPosts.length === 1 ? 'post' : 'posts'}
-                        </span>
-                        <span className="text-[#023B1F]/60">
-                          Joined {formatDate(u.createdAt)}
-                        </span>
-                        {userPosts.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setExpandedUserId(isExpanded ? null : u.uid)
-                            }
-                            className="text-xs font-semibold text-[#036A39] hover:underline"
-                          >
-                            {isExpanded ? 'Hide posts' : 'View posts'}
-                          </button>
-                        )}
-                      </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setUserRoleFilter('ALL')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                  userRoleFilter === 'ALL'
+                    ? 'bg-[#036A39] text-[#F2F2F2]'
+                    : 'bg-[#DEE0DF]/60 text-[#023B1F] hover:bg-[#DEE0DF]'
+                }`}
+              >
+                All Users ({allUsers.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserRoleFilter('ADMIN')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                  userRoleFilter === 'ADMIN'
+                    ? 'bg-[#C0A14E] text-[#023B1F]'
+                    : 'bg-[#DEE0DF]/60 text-[#023B1F] hover:bg-[#DEE0DF]'
+                }`}
+              >
+                Admins ({allUsers.filter((u) => u.role === 'ADMIN').length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setUserRoleFilter('USER')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                  userRoleFilter === 'USER'
+                    ? 'bg-[#036A39] text-[#F2F2F2]'
+                    : 'bg-[#DEE0DF]/60 text-[#023B1F] hover:bg-[#DEE0DF]'
+                }`}
+              >
+                Standard ({allUsers.filter((u) => u.role !== 'ADMIN').length})
+              </button>
+            </div>
+          </div>
+
+          {/* Users List Container */}
+          <div className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-2xl overflow-hidden shadow-sm">
+            {usersLoading ? (
+              <div className="p-8 text-center text-sm text-[#023B1F]/70">Loading users...</div>
+            ) : allUsers.length === 0 ? (
+              <div className="p-8 text-center text-sm text-[#023B1F]/70">No registered users yet.</div>
+            ) : (
+              (() => {
+                const searchQ = userSearchTerm.trim().toLowerCase();
+                const filteredUsers = allUsers.filter((u) => {
+                  if (userRoleFilter === 'ADMIN' && u.role !== 'ADMIN') return false;
+                  if (userRoleFilter === 'USER' && u.role === 'ADMIN') return false;
+                  if (searchQ) {
+                    const matchName = u.fullName?.toLowerCase().includes(searchQ);
+                    const matchEmail = u.email?.toLowerCase().includes(searchQ);
+                    const matchPhone = u.phone?.toLowerCase().includes(searchQ);
+                    return matchName || matchEmail || matchPhone;
+                  }
+                  return true;
+                });
+
+                if (filteredUsers.length === 0) {
+                  return (
+                    <div className="p-8 text-center text-sm text-[#023B1F]/70">
+                      No users match your search criteria.
                     </div>
+                  );
+                }
 
-                    {isExpanded && userPosts.length > 0 && (
-                      <div className="pt-2 pl-4 border-t border-[#036A39]/10 space-y-2">
-                        {userPosts.map((post) => (
-                          <div
-                            key={post.id}
-                            className="flex flex-wrap items-center justify-between gap-2 text-xs py-1"
-                          >
-                            <span className="font-medium text-[#023B1F]">{post.title}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="text-[#023B1F]/65">{post.categoryName}</span>
-                              <span
-                                className={`font-semibold ${
-                                  post.status === 'APPROVED'
-                                    ? 'text-[#036A39]'
-                                    : post.status === 'PENDING'
-                                      ? 'text-[#9D7F32]'
-                                      : 'text-red-700'
-                                }`}
-                              >
-                                {post.status}
-                              </span>
+                return (
+                  <div className="divide-y divide-[#036A39]/10">
+                    {filteredUsers.map((u) => {
+                      const userPosts = allListings.filter((l) => l.userId === u.uid);
+                      const isExpanded = expandedUserId === u.uid;
+                      const isCurrentUser = u.uid === firebaseUser?.uid;
+                      const isUserAdmin = u.role === 'ADMIN';
+
+                      return (
+                        <div key={u.uid} className="p-5 space-y-3 hover:bg-[#DEE0DF]/20 transition-colors">
+                          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="space-y-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="text-sm font-bold text-[#023B1F]">
+                                  {u.fullName || 'Anonymous Student'}
+                                </span>
+                                {isUserAdmin ? (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#036A39]/12 text-[#036A39] border border-[#036A39]/25">
+                                    <ShieldCheck className="w-3.5 h-3.5 text-[#C0A14E]" />
+                                    Admin
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#DEE0DF]/60 text-[#023B1F]/75">
+                                    Student User
+                                  </span>
+                                )}
+                                {isCurrentUser && (
+                                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-[#023B1F]/70">
+                                <span className="font-mono text-[#036A39]">{u.email}</span>
+                                {u.phone ? ` · Tel: ${u.phone}` : ''}
+                                {u.organization ? ` · ${u.organization}` : ''}
+                              </p>
+                              <div className="flex items-center gap-3 text-xs text-[#023B1F]/60 pt-0.5">
+                                <span className="font-[JetBrains_Mono] text-[#036A39] font-semibold tabular-nums">
+                                  {userPosts.length} {userPosts.length === 1 ? 'listing' : 'listings'}
+                                </span>
+                                <span>·</span>
+                                <span>Joined {formatDate(u.createdAt)}</span>
+                                {userPosts.length > 0 && (
+                                  <>
+                                    <span>·</span>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setExpandedUserId(isExpanded ? null : u.uid)
+                                      }
+                                      className="text-xs font-semibold text-[#036A39] hover:underline"
+                                    >
+                                      {isExpanded ? 'Hide listings' : 'View listings'}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* User Management Actions */}
+                            <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0">
+                              {!isCurrentUser ? (
+                                <>
+                                  {/* Role Toggle Button */}
+                                  {isUserAdmin ? (
+                                    <button
+                                      type="button"
+                                      disabled={toggleUserRoleMutation.isPending}
+                                      onClick={() =>
+                                        toggleUserRoleMutation.mutate({
+                                          uid: u.uid,
+                                          role: 'USER',
+                                          email: u.email,
+                                        })
+                                      }
+                                      className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-amber-700/30 text-amber-900 bg-amber-50 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
+                                      title="Revoke admin privileges and change to standard user"
+                                    >
+                                      <UserMinus className="w-3.5 h-3.5" />
+                                      <span>Demote to User</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled={toggleUserRoleMutation.isPending}
+                                      onClick={() =>
+                                        toggleUserRoleMutation.mutate({
+                                          uid: u.uid,
+                                          role: 'ADMIN',
+                                          email: u.email,
+                                        })
+                                      }
+                                      className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#036A39] text-[#F2F2F2] hover:bg-[#024D29] transition-colors flex items-center gap-1.5 shadow-sm"
+                                      title="Promote user to Platform Administrator"
+                                    >
+                                      <Shield className="w-3.5 h-3.5 text-[#C0A14E]" />
+                                      <span>Promote to Admin</span>
+                                    </button>
+                                  )}
+
+                                  {/* Delete User Button & Confirmation */}
+                                  {confirmDeleteUserId === u.uid ? (
+                                    <div className="flex items-center gap-1.5 bg-red-50 p-1 rounded-lg border border-red-300">
+                                      <span className="text-[11px] font-semibold text-red-800 pl-1">
+                                        Delete user?
+                                      </span>
+                                      <button
+                                        type="button"
+                                        disabled={deleteUserMutation.isPending}
+                                        onClick={() => deleteUserMutation.mutate(u.uid)}
+                                        className="px-2 py-1 text-xs font-bold bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                      >
+                                        Yes, Delete
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setConfirmDeleteUserId(null)}
+                                        className="px-2 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-200 rounded transition-colors"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setConfirmDeleteUserId(u.uid)}
+                                      className="px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 rounded-lg border border-red-200 transition-colors flex items-center gap-1"
+                                      title="Delete user account"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>Delete</span>
+                                    </button>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="text-xs italic text-[#023B1F]/60 px-2 py-1">
+                                  Current Active Session
+                                </span>
+                              )}
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    )}
+
+                          {/* Expanded Listings */}
+                          {isExpanded && userPosts.length > 0 && (
+                            <div className="pt-3 pl-4 border-t border-[#036A39]/10 space-y-2">
+                              {userPosts.map((post) => (
+                                <div
+                                  key={post.id}
+                                  className="flex flex-wrap items-center justify-between gap-2 text-xs py-1"
+                                >
+                                  <Link
+                                    to={`/listings/${post.id}`}
+                                    className="font-medium text-[#036A39] hover:underline"
+                                  >
+                                    {post.title}
+                                  </Link>
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-[#023B1F]/65">{post.categoryName}</span>
+                                    <span className="font-mono text-[#023B1F]/80">
+                                      {formatPrice(post.price)}
+                                    </span>
+                                    <span
+                                      className={`font-semibold px-2 py-0.5 rounded text-[11px] ${
+                                        post.status === 'APPROVED'
+                                          ? 'bg-emerald-100 text-emerald-800'
+                                          : post.status === 'PENDING'
+                                            ? 'bg-amber-100 text-amber-800'
+                                            : post.status === 'SOLD'
+                                              ? 'bg-neutral-200 text-neutral-800'
+                                              : 'bg-red-100 text-red-800'
+                                      }`}
+                                    >
+                                      {post.status}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
-              })}
-            </div>
-          )}
+              })()
+            )}
+          </div>
         </div>
       )}
     </div>

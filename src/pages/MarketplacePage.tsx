@@ -5,13 +5,18 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  HelpCircle,
   MapPin,
+  Radio,
   RotateCcw,
   Search,
+  ShieldCheck,
   SlidersHorizontal,
+  Sparkles,
 } from 'lucide-react';
 import { ListingCard } from '../components/ListingCard';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { SafeCampusMeetupModal } from '../components/SafeCampusMeetupModal';
 import { DEFAULT_CATEGORIES, SHOWCASE_DEMO_LISTINGS } from '../data/seedData';
 import { fetchApprovedListings, fetchCategories } from '../services/marketplaceService';
 import {
@@ -49,6 +54,7 @@ export function MarketplacePage() {
   const [sortBy, setSortBy] = useState<'newest' | 'price_asc' | 'price_desc'>('newest');
   const [page, setPage] = useState(1);
   const [quickViewListing, setQuickViewListing] = useState<Listing | null>(null);
+  const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
 
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
     try {
@@ -200,7 +206,15 @@ export function MarketplacePage() {
             Browse verified, administrator-approved products, equipment rentals, and campus skills.
           </p>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <button
+            type="button"
+            onClick={() => setIsSafetyModalOpen(true)}
+            className="px-3 py-2 bg-[#DEE0DF]/60 hover:bg-[#DEE0DF] text-[#036A39] text-xs font-bold rounded-lg border border-[#036A39]/15 transition-colors flex items-center gap-1.5 shadow-sm"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#C0A14E]" />
+            <span>Safe Meetup Spots</span>
+          </button>
           <span className="font-[JetBrains_Mono] text-xs font-semibold text-[#023B1F]/75 tabular-nums">
             {filteredListings.length} {filteredListings.length === 1 ? 'listing' : 'listings'}
           </span>
@@ -212,6 +226,59 @@ export function MarketplacePage() {
           </Link>
         </div>
       </div>
+
+      {/* Main Switcher: All Marketplace vs Student Wanted Board */}
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedType('ALL');
+            setPage(1);
+          }}
+          className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-sm ${
+            selectedType !== 'WANTED'
+              ? 'bg-[#036A39] text-[#F2F2F2] shadow-md ring-2 ring-[#036A39]/20'
+              : 'bg-[#F2F2F2] text-[#023B1F]/80 border border-[#036A39]/15 hover:bg-[#DEE0DF]/60'
+          }`}
+        >
+          All Marketplace Catalog
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedType('WANTED');
+            setPage(1);
+          }}
+          className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-2 shadow-sm ${
+            selectedType === 'WANTED'
+              ? 'bg-[#C0A14E] text-[#023B1F] shadow-md ring-2 ring-[#C0A14E]/30 font-extrabold'
+              : 'bg-[#F2F2F2] text-[#023B1F]/80 border border-[#036A39]/15 hover:bg-[#DEE0DF]/60'
+          }`}
+        >
+          <Radio className="w-4 h-4 text-[#036A39] animate-pulse" />
+          <span>Student Requests / Wanted Board</span>
+          <span className="px-2 py-0.5 rounded-full text-[11px] bg-[#036A39]/15 text-[#036A39]">
+            JU Student Asks
+          </span>
+        </button>
+      </div>
+
+      {/* Contextual Wanted Board Banner */}
+      {selectedType === 'WANTED' && (
+        <div className="bg-[#C0A14E]/15 border border-[#C0A14E]/40 rounded-3xl p-5 sm:p-6 flex items-start gap-4">
+          <div className="p-2.5 bg-[#C0A14E]/25 text-[#023B1F] rounded-2xl shrink-0 mt-0.5">
+            <Sparkles className="w-5 h-5 text-[#9D7F32]" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-sm sm:text-base font-bold text-[#023B1F]">
+              Student Requests &amp; Wanted Board
+            </h3>
+            <p className="text-xs sm:text-sm text-[#023B1F]/85 leading-relaxed">
+              These are listings posted by Jimma University students who are urgently searching for course textbooks, scientific calculators, dorm gear, laptop chargers, or tutoring assistance. If you have what they need, tap the listing to call or message the student directly!
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Filter & Search Bar Panel */}
       <section className="bg-[#F2F2F2] border border-[#036A39]/12 rounded-3xl p-5 sm:p-7 space-y-5 shadow-sm">
@@ -496,6 +563,12 @@ export function MarketplacePage() {
         onClose={() => setQuickViewListing(null)}
         isBookmarked={Boolean(quickViewListing && bookmarkedIds.includes(quickViewListing.id))}
         onToggleBookmark={toggleBookmark}
+      />
+
+      {/* Safe Campus Meetup Spots Guide Modal */}
+      <SafeCampusMeetupModal
+        isOpen={isSafetyModalOpen}
+        onClose={() => setIsSafetyModalOpen(false)}
       />
     </div>
   );

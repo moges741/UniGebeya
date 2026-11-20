@@ -61,10 +61,16 @@ export function ListingCard({
         {/* Top Badges Overlay */}
         <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between gap-1 pointer-events-none">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="px-2 py-0.5 bg-[#036A39]/90 text-[#F2F2F2] text-[11px] font-bold rounded-md backdrop-blur-sm shadow-sm tracking-wide">
-              {LISTING_TYPE_LABEL[listing.listingType]}
-            </span>
-            {listing.isFeatured && (
+            {listing.status === 'SOLD' ? (
+              <span className="px-2 py-0.5 bg-rose-700 text-white text-[11px] font-black rounded-md shadow-md tracking-wider">
+                SOLD
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 bg-[#036A39]/90 text-[#F2F2F2] text-[11px] font-bold rounded-md backdrop-blur-sm shadow-sm tracking-wide">
+                {LISTING_TYPE_LABEL[listing.listingType]}
+              </span>
+            )}
+            {listing.isFeatured && listing.status !== 'SOLD' && (
               <span className="px-2 py-0.5 bg-[#C0A14E] text-[#023B1F] text-[10px] font-extrabold rounded-md shadow-sm">
                 ★ FEATURED
               </span>

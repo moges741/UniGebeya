@@ -102,7 +102,7 @@ export async function deleteCategory(id: string): Promise<void> {
 export async function fetchApprovedListings(): Promise<Listing[]> {
   const path = 'listings';
   try {
-    const q = query(collection(db, path), where('status', '==', 'APPROVED'));
+    const q = query(collection(db, path), where('status', 'in', ['APPROVED', 'SOLD']));
     const snap = await getDocs(q);
     const items = snap.docs.map((d) => ({
       id: d.id,
@@ -398,4 +398,70 @@ export async function clearDemoListingsAdmin(): Promise<number> {
     await deleteListing(item.id);
   }
   return demoItems.length;
+}
+
+export async function toggleListingSold(
+  listingId: string,
+  currentStatus: ListingStatus
+): Promise<ListingStatus> {
+  const nextStatus: ListingStatus = currentStatus === 'SOLD' ? 'APPROVED' : 'SOLD';
+  const path = `listings/${listingId}`;
+  try {
+    await updateDoc(doc(db, 'listings', listingId), {
+      status: nextStatus,
+      updatedAt: serverTimestamp(),
+    });
+    return nextStatus;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    throw error;
+  }
+}
+
+export async function adminToggleUserRole(
+  userId: string,
+  targetRole: 'ADMIN' | 'USER',
+  userEmail: string
+): Promise<void> {
+  const userPath = `users/${userId}`;
+  const adminPath = `admins/${userId}`;
+  try {
+    if (targetRole === 'ADMIN') {
+      await setDoc(doc(db, 'admins', userId), {
+        uid: userId,
+        email: userEmail,
+        grantedAt: serverTimestamp(),
+      });
+      await updateDoc(doc(db, 'users', userId), {
+        role: 'ADMIN',
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      try {
+        await deleteDoc(doc(db, 'admins', userId));
+      } catch (adminDelErr) {
+        console.warn('Admin record deletion warning:', adminDelErr);
+      }
+      await updateDoc(doc(db, 'users', userId), {
+        role: 'USER',
+        updatedAt: serverTimestamp(),
+      });
+    }
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, userPath);
+    throw error;
+  }
+}
+
+export async function adminDeleteUser(userId: string): Promise<void> {
+  const userPath = `users/${userId}`;
+  try {
+    try {
+      await deleteDoc(doc(db, 'admins', userId));
+    } catch {}
+    await deleteDoc(doc(db, 'users', userId));
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, userPath);
+    throw error;
+  }
 }

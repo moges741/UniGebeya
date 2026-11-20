@@ -114,7 +114,7 @@ service cloud.firestore {
         && data.price is number && data.price >= 0 && data.price <= 100000000
         && data.currency in ['ETB', 'USD']
         && data.listingType in ['FOR_SALE', 'WANTED', 'RENTAL', 'SERVICE', 'EXCHANGE']
-        && data.status in ['PENDING', 'APPROVED', 'REJECTED']
+        && data.status in ['PENDING', 'APPROVED', 'REJECTED', 'SOLD']
         && data.rejectionReason is string && data.rejectionReason.size() <= 500
         && data.location is string && data.location.size() >= 2 && data.location.size() <= 120
         && data.contactPhone is string && data.contactPhone.size() <= 40
@@ -138,7 +138,7 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
     match /users/{userId} {
       allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
-      allow list: if isBootstrappedAdmin();
+      allow list: if isAdmin();
 
       allow create: if isVerifiedUser()
         && isValidId(userId)
@@ -179,7 +179,7 @@ service cloud.firestore {
     // -------------------------------------------------------------------------
     match /admins/{userId} {
       allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
-      allow list: if isBootstrappedAdmin();
+      allow list: if isAdmin();
       allow create: if isValidId(userId)
         && isAdmin()
         && isValidAdminRecord(incoming())
@@ -189,8 +189,8 @@ service cloud.firestore {
         && isAdmin()
         && isValidAdminRecord(incoming())
         && incoming().uid == existing().uid
-        && incoming().grantedAt == existing().grantedAt
-        && incoming().diff(existing()).affectedKeys().hasOnly(['email']);
+        && (incoming().grantedAt == existing().grantedAt || incoming().grantedAt == request.time)
+        && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'grantedAt']);
       allow delete: if isValidId(userId) && isAdmin();
     }
 
@@ -221,17 +221,17 @@ service cloud.firestore {
     // Collection: /listings/{listingId} (Core Approval Gate)
     // -------------------------------------------------------------------------
     match /listings/{listingId} {
-      // Only APPROVED listings are visible publicly; owners see their own; admins see all
+      // Only APPROVED and SOLD listings are visible publicly; owners see their own; admins see all
       allow get: if isValidId(listingId) && (
-        existing().status == 'APPROVED' ||
+        existing().status in ['APPROVED', 'SOLD'] ||
         isOwner(existing().userId) ||
         isAdmin()
       );
 
-      // Secure list query: no get()/exists() inside list; forces client query constraints
-      allow list: if resource.data.status == 'APPROVED'
+      // Publicly allowed for APPROVED or SOLD; owners see all their own; admins see all
+      allow list: if resource.data.status in ['APPROVED', 'SOLD']
         || (isSignedIn() && resource.data.userId == request.auth.uid)
-        || isBootstrappedAdmin();
+        || isAdmin();
 
       // Users submit as PENDING only; admins may seed/create directly
       allow create: if isVerifiedUser()
@@ -259,7 +259,14 @@ service cloud.firestore {
         && incoming().createdAt == existing().createdAt
         && incoming().updatedAt == request.time
         && (
-          // Action 1: Owner edits listing (always returns to PENDING for admin re-review)
+          // Action 1: Owner marks listing as SOLD or returns back to APPROVED (only allowed if already APPROVED or SOLD)
+          (
+            isOwner(existing().userId)
+            && existing().status in ['APPROVED', 'SOLD']
+            && incoming().status in ['APPROVED', 'SOLD']
+            && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          ) ||
+          // Action 2: Owner edits listing details (always returns to PENDING for admin re-review)
           (
             isOwner(existing().userId)
             && incoming().status == 'PENDING'
@@ -275,7 +282,7 @@ service cloud.firestore {
               'status', 'rejectionReason', 'approvedBy', 'updatedAt'
             ])
           ) ||
-          // Action 2: Admin approves, rejects, features, or edits listing
+          // Action 3: Admin approves, rejects, features, or edits listing
           (
             isAdmin()
             && incoming().diff(existing()).affectedKeys().hasOnly([

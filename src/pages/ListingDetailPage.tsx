@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { ListingCard } from '../components/ListingCard';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { SafeCampusMeetupModal } from '../components/SafeCampusMeetupModal';
+import { useAuth } from '../context/AuthContext';
 import { SHOWCASE_DEMO_LISTINGS } from '../data/seedData';
 import { fetchApprovedListings, fetchListingById } from '../services/marketplaceService';
 import {
@@ -31,10 +33,12 @@ import {
 
 export function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { isAdmin } = useAuth();
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [imgError, setImgError] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [quickViewListing, setQuickViewListing] = useState<Listing | null>(null);
+  const [isSafetyModalOpen, setIsSafetyModalOpen] = useState(false);
 
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
     try {
@@ -214,6 +218,37 @@ export function ListingDetailPage() {
         </div>
       )}
 
+      {/* Admin Quick Action Bar */}
+      {isAdmin && (
+        <div className="bg-[#036A39]/10 border border-[#036A39]/25 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-[#036A39] text-[#F2F2F2] rounded-xl shadow-xs">
+              <ShieldCheck className="w-5 h-5 text-[#C0A14E]" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#036A39] flex items-center gap-2">
+                <span>Platform Administrator View</span>
+                <span className="text-[11px] font-mono bg-[#036A39]/15 px-2 py-0.5 rounded text-[#036A39]">
+                  {listing.id}
+                </span>
+              </div>
+              <p className="text-xs text-[#023B1F]/75 mt-0.5">
+                Current Status: <strong className="font-bold text-[#036A39]">{listing.status}</strong> · Featured: <strong>{listing.isFeatured ? 'Yes' : 'No'}</strong>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/admin"
+              className="px-3.5 py-1.5 bg-[#036A39] text-[#F2F2F2] text-xs font-bold rounded-lg hover:bg-[#024D29] transition-colors shadow-sm"
+            >
+              Open in Admin Dashboard →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Main Split Gallery + Contiguous Purchase / Contact Module */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left: Sticky Gallery & Description */}
@@ -273,14 +308,24 @@ export function ListingDetailPage() {
           </div>
 
           {/* Campus Trust Guarantee */}
-          <div className="bg-[#036A39]/8 border border-[#036A39]/15 rounded-2xl p-5 flex items-start gap-3.5">
-            <ShieldCheck className="w-5 h-5 text-[#036A39] shrink-0 mt-0.5" />
-            <div className="text-xs text-[#023B1F]/85 leading-relaxed">
-              <span className="font-bold text-[#036A39]">Verified Campus Marketplace:</span> Every
-              listing on UNi GEBEYA is reviewed by student moderators. We never charge middleman fees.
-              Always meet in designated campus areas (such as JiT Kito Furdisa Innovation Gate, JU Main Library Square, or Student Lounge) to
-              inspect gear before paying.
+          <div className="bg-[#036A39]/8 border border-[#036A39]/15 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <ShieldCheck className="w-5 h-5 text-[#036A39] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#023B1F]/85 leading-relaxed">
+                <span className="font-bold text-[#036A39]">Verified Campus Marketplace:</span> Every
+                listing on UNi GEBEYA is reviewed by student moderators. We never charge middleman fees.
+                Always meet in designated campus areas (such as JiT Kito Furdisa Innovation Gate, JU Main Library Square, or Student Lounge) to
+                inspect gear before paying.
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsSafetyModalOpen(true)}
+              className="px-3.5 py-2 bg-[#036A39] text-[#F2F2F2] text-xs font-bold rounded-xl hover:bg-[#024D29] transition-colors whitespace-nowrap shrink-0 shadow-sm flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#C0A14E]" />
+              <span>Safe Meetup Guide</span>
+            </button>
           </div>
         </div>
 
@@ -337,6 +382,17 @@ export function ListingDetailPage() {
               <p className="text-xs font-bold text-[#023B1F]/75 uppercase tracking-wider">
                 Direct Seller Contact
               </p>
+
+              {listing.status === 'SOLD' && (
+                <div className="p-4 bg-neutral-900 text-white rounded-2xl space-y-1 text-center shadow-inner">
+                  <div className="text-xs font-black uppercase tracking-wider text-amber-400">
+                    ✓ Marked as Sold / Concluded
+                  </div>
+                  <p className="text-xs text-neutral-300">
+                    This item or rental deal has been finalized by the seller and is no longer available.
+                  </p>
+                </div>
+              )}
 
               {telegramUsername && (
                 <div className="flex items-center gap-2">
@@ -440,6 +496,12 @@ export function ListingDetailPage() {
         onClose={() => setQuickViewListing(null)}
         isBookmarked={Boolean(quickViewListing && bookmarkedIds.includes(quickViewListing.id))}
         onToggleBookmark={toggleBookmark}
+      />
+
+      {/* Safe Campus Meetup Spots Guide Modal */}
+      <SafeCampusMeetupModal
+        isOpen={isSafetyModalOpen}
+        onClose={() => setIsSafetyModalOpen(false)}
       />
     </div>
   );

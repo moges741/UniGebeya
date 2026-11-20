@@ -3,7 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 
 export type UserRole = 'USER' | 'ADMIN';
 export type ListingType = 'FOR_SALE' | 'WANTED' | 'RENTAL' | 'SERVICE' | 'EXCHANGE';
-export type ListingStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type ListingStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SOLD';
 export type CurrencyCode = 'ETB' | 'USD';
 
 export interface UserProfile {
@@ -73,6 +73,7 @@ export const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
   PENDING: 'Pending Approval',
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
+  SOLD: 'Sold / Rented',
 };
 
 export const listingFormSchema = z

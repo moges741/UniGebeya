@@ -77,6 +77,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  to="/marketplace?type=WANTED"
+                  className="text-[#C0A14E] hover:text-[#F2F2F2] transition-colors font-bold"
+                >
+                  🎯 Student Requests / Wanted Board
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/marketplace?category=local-business"
                   className="hover:text-[#F2F2F2] transition-colors"
                 >
